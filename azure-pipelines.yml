@@ -1,0 +1,28 @@
+trigger:
+- main   # use your default branch name (master or main)
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+# Checkout your code from GitHub or Azure Repos
+- checkout: self
+
+# Set up JDK 17
+- task: JavaToolInstaller@0
+  inputs:
+    versionSpec: '17'
+
+# Build and test with Maven
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'clean test'
+
+# Deploy to Azure Web App
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '<YOUR_AZURE_SERVICE_CONNECTION_NAME>'
+    appType: 'webApp' 
+    appName: '<YOUR_AZURE_WEBAPP_NAME>'
+    package: '$(System.DefaultWorkingDirectory)/**/target/*.jar'
